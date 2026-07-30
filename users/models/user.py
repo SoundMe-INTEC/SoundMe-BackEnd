@@ -16,3 +16,6 @@ class User(AbstractUser):
 
     USERNAME_FIELD = "identification" 
     REQUIRED_FIELDS = ["email", "identification_type"]
+
+    class Meta:
+        db_table = "users"
