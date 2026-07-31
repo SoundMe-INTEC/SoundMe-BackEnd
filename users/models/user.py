@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from . import choices
+from .manager.user_manager import UserManager
 
 # Create your models here.
 class User(AbstractUser):
@@ -17,5 +18,7 @@ class User(AbstractUser):
     USERNAME_FIELD = "identification" 
     REQUIRED_FIELDS = ["email", "identification_type"]
 
-    class Meta:
+    objects = UserManager() #type: ignore
+
+    class Meta:  # type: ignore
         db_table = "users"

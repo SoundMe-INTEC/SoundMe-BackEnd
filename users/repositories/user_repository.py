@@ -1,39 +1,37 @@
 from users.models import User
 from django.db.models import QuerySet
 
-def get_by_identification (self, identification: str) -> User | None:
-    try:
-        return User.objects.get(identification=identification)
-    except User.DoesNotExist:
-        return None
-    
-def get_by_email (self, email:str) -> User | None:
-    try:
-        return User.objects.get(email=email)
-    except User.DoesNotExist:
-        return None
 
-def get_all (self) -> QuerySet[User]:
-    return User.objects.all()
+class UserRepository:
 
-def get_all_active (self) -> QuerySet[User]:
-    return User.objects.filter(is_active=True)
+    def get_by_identification(self, identification: str) -> User | None:
+        return User.objects.filter(identification=identification).first()
 
-def create (self, new_user: User) -> User:
-    new_user.save()
-    return new_user
+    def get_by_email(self, email: str) -> User | None:
+        return User.objects.filter(email=email).first()
 
-def update (self, updated_user: User) -> User:
-    updated_user.save()
-    return updated_user
+    def get_all(self) -> QuerySet[User]:
+        return User.objects.all()
 
-def soft_delete (self, identification) -> bool:
+    def get_all_active(self) -> QuerySet[User]:
+        return User.objects.filter(is_active=True)
 
-    user = User.objects.get(identification=identification)
+    def create(self, new_user: User) -> User:
+        new_user.save()
+        return new_user
 
-    if user == None:
-        return False
+    def update(self, updated_user: User) -> User:
+        updated_user.save()
+        return updated_user
 
-    user.is_active = False
-    user.save()
-    return True
+    def soft_delete(self, identification: str) -> bool:
+
+        user = User.objects.filter(identification=identification).first()
+
+        if user is None:
+            return False
+
+        user.is_active = False
+        user.save()
+
+        return True
