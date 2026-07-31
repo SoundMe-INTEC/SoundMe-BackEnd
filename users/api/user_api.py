@@ -1,5 +1,5 @@
 from django.http import HttpResponse
 
-def test (request):
+def createuser (request):
 
     return HttpResponse("test")
