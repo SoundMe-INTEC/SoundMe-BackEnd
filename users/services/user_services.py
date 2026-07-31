@@ -13,7 +13,7 @@ class UserService:
             raise ValueError("User with this identification already exists")
 
         if self._user_repo.get_by_email(data["email"]):
-                    raise ValueError("User with this email already exists")
+            raise ValueError("User with this email already exists")
 
         user = User(
             identification=data["identification"],
@@ -71,6 +71,34 @@ class UserService:
     def find_all_active(self):
 
         return self._user_repo.get_all_active()
+
+    def update_user(self, data):
+
+        user = self.find_by_identification(data["identification"])
+
+        new_email = data.get("email")
+
+        if new_email and new_email != user.email:
+            existing_user = self._user_repo.get_by_email(new_email)
+            if existing_user:
+                raise ValueError("Email is already in use by another user")
+            user.email = new_email
+
+        new_identification = data.get("identification")
+
+        if new_identification and new_identification != user.identification:
+            existing_user = self._user_repo.get_by_identification(new_identification)
+            if existing_user:
+                raise ValueError("Identification is already in use by another user")
+            user.identification = new_identification
+
+        allowed_to_change = ("identification_type", "phone", "role")
+
+        for field in allowed_to_change:
+            if field in data:
+                setattr(user, field, data[field])
+
+        return self._user_repo.update(user)
 
     def soft_delete(self, identification):
 
