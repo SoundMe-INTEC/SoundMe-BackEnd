@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.messages',
     'django.contrib.auth',
+    'django.contrib.sessions',
+    'django.contrib.staticfiles',
     'django.contrib.contenttypes',
     'rest_framework',
     'users',
@@ -78,7 +80,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': parse(config("DATABASE_URL"))
+    'default': parse(config("DATABASE_URL")) # type: ignore
 }
 
 
@@ -123,3 +125,33 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# LOGS CONFIG (django-rich-logging)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "django_rich": {
+            "format": "%(message)s",
+            "datefmt": "[%X]",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "rich.logging.RichHandler",
+            "formatter": "django_rich",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+        "django.server": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
