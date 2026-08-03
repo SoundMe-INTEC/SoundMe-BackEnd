@@ -1,5 +1,5 @@
 git clone <https://github.com/SoundMe-INTEC/backend-django-app>
-cd backend-django-app
+cd SoundMe-BackEnd
 
 python -m venv venv
 
@@ -9,6 +9,7 @@ venv\Scripts\activate
 # Linux/Mac
 source venv/bin/activate
 
+# Instalar librerias 
 pip install -r requirements.txt
 
 # Crear el archivo .env

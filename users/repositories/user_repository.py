@@ -15,7 +15,7 @@ class UserRepository:
 
     def get_all_active(self):
         return User.objects.filter(is_active=True)
-
+    
     def create(self, new_user):
         new_user.save()
         return new_user
