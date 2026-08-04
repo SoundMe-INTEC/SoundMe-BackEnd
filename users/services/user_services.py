@@ -1,6 +1,6 @@
 from typing_extensions import Self
 
-from repositories.user_repository import UserRepository
+from users.repositories.user_repository import UserRepository
 from users.models import User
 
 

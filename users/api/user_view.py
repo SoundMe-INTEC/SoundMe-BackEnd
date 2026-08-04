@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
-from serializers import user_serializer
-from services.user_services import UserService
+from users.serializers import user_serializer
+from users.services.user_services import UserService
 
 
 class UserView:
