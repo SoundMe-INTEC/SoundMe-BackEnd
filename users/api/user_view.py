@@ -38,7 +38,7 @@ class UserView:
                     "access": str(refresh.access_token),
                     "refresh": str(refresh),
                 },
-                status=status.HTTP_202_ACCEPTED,
+                status=status.HTTP_200_OK,
             )
         except ValueError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -61,13 +61,16 @@ class UserView:
         user_service = UserService()
         identification = request.query_params.get("identification")
         if not identification:
-            user = user_service.find_by_identification(identification)
             return Response(
-                user_serializer.UserResponseSerializer(user).data, 
-                status=status.HTTP_200_OK
+                {"detail": "Identification query parameter is required"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
         try:
-            return Response()
+            user = user_service.find_by_identification(identification)
+            return Response(
+                user_serializer.UserResponseSerializer(user).data,
+                status=status.HTTP_200_OK,
+            )
         except ValueError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

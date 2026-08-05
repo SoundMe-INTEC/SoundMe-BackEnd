@@ -6,12 +6,12 @@ from .manager.user_manager import UserManager
 
 # Create your models here.
 class User(AbstractUser):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     identification = models.CharField(max_length=20, unique=True)
     username = None
     identification_type = models.CharField(max_length=20, choices=choices.IdentificationType.choices)
     role = models.CharField(max_length=20, choices=choices.Roles.choices, default=choices.Roles.ADMIN)
-    phone = models.CharField(max_length=11, unique=True)
+    phone = models.CharField(max_length=11, unique=True,blank=True, null=True, default=None)
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
