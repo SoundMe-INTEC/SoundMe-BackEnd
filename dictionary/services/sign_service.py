@@ -1,4 +1,4 @@
-from dictionary.repositories.sign_repositories import SignRepository
+from dictionary.repositories.sign_repository import SignRepository
 
 class SignService:
     

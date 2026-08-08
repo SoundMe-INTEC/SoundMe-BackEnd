@@ -1,4 +1,4 @@
-from repositories.word_repositories import WordRepository
+from dictionary.repositories.word_repository import WordRepository
 
 class WordService:
     
