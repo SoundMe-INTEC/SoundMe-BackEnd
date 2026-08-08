@@ -8,7 +8,7 @@ class WordService:
     
     def create_word(self, data):
         
-        return self._word_repo.create_word(data)
+        return self._word_repo.create(data)
     
     def find_by_word_name(self, word_name):
         

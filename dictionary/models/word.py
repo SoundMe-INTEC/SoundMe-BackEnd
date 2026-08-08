@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from .choices_dic import GrammaticalCategories, LanguageRegister, Status
+from .choices import GrammaticalCategories, LanguageRegister, Status
 
 # Create your models here.
 class Word(models.Model):

@@ -8,11 +8,11 @@ class WordRepository:
     def get_by_name(self, word_name):
         return Word.objects.filter(word_name=word_name).first
     
-    def create_word(self, new_word):
+    def create(self, new_word):
         new_word.save()
         return new_word
     
-    def update_word(self, updated_word):
+    def update(self, updated_word):
         updated_word.save()
         return updated_word
     

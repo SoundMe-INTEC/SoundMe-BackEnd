@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from dictionary.models.choices_dic import GrammaticalCategories
+from dictionary.models.choices import GrammaticalCategories
 
 class WordSerializers(serializers.Serializer):
     word_name = serializers.CharField(max_length=50)

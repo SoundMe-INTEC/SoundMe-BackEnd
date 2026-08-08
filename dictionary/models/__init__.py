@@ -1,2 +1,2 @@
-from sign import Sign
-from word import Word
+from .sign import Sign
+from .word import Word
