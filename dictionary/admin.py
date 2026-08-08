@@ -1,5 +1,8 @@
 from django.contrib import admin
-from users.models.user import User
+from dictionary.models.word import Word
+from dictionary.models.sign import Sign
+
 # Register your models here.
 
-admin.site.register(User)
+admin.site.register(Word)
+admin.site.register(Sign)

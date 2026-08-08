@@ -1,4 +1,4 @@
-from dictionary.models import Word
+from dictionary.models.word import Word
 
 class WordRepository:
     
@@ -6,7 +6,10 @@ class WordRepository:
         return Word.objects.filter(is_active=True)
     
     def get_by_name(self, word_name):
-        return Word.objects.filter(word_name=word_name).first
+        return Word.objects.filter(word_name=word_name).first()
+    
+    def get_all_active(self):
+        return Word.objects.filter(is_active=True)
     
     def create(self, new_word):
         new_word.save()
