@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from .choices_dic import Categories, Status
+from .choices import Categories, Status
 
 # Create your models here.
 class Sign(models.Model):

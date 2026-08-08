@@ -1,4 +1,4 @@
-from repositories.sign_repositories import SignRepository
+from dictionary.repositories.sign_repository import SignRepository
 from dictionary.models import Sign
 
 class SignService:
@@ -8,7 +8,7 @@ class SignService:
         
     def create_sign(self, data):
         
-        return self._user_repo.created(data)
+        return self._sign_repo.create(data)
 
     def find_by_sign_name(self, sign_name):
         
