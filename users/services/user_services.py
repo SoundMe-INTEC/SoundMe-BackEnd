@@ -83,11 +83,11 @@ class UserService:
 
         return self._user_repo.get_all_active()
 
-    def update_user(self, data):
+    def update(self, data):
 
         user = self.find_by_identification(data["identification"])
 
-        new_email = data.get("email")
+        new_email = data.get("email")   
 
         if new_email and new_email != user.email:
             existing_user = self._user_repo.get_by_email(new_email)

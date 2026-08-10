@@ -1,12 +1,12 @@
 from dictionary.models import Sign
 
 class SignRepository:
-    
-    def get_by_sign_name(self, sign_name):
-        return Sign.objects.filter(sign_name=sign_name).first()
-    
+        
     def get_all(self):
         return Sign.objects.all()
+    
+    def get_by_name(self, sign_name):
+        return Sign.objects.filter(sign_name=sign_name).first()
     
     def get_all_active(self):
         return Sign.objects.filter(is_active=True)
