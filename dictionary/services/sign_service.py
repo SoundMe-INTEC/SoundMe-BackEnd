@@ -1,13 +1,21 @@
 from dictionary.repositories.sign_repository import SignRepository
+from dictionary.models.sign import Sign
 
 class SignService:
     
     def __init__(self):
         self._sign_repo = SignRepository()
         
-    def create(self, data):
+    def create(self, data, user):
         
-        return self._sign_repo.create(data)
+        sign = Sign(
+            created_by=user,
+            sign_name=data["sign_name"],
+            sign_category=data["sign_category"],
+            description=data["description"]
+        )
+        
+        return self._sign_repo.create(sign)
 
     def find_by_sign_name(self, sign_name):
         

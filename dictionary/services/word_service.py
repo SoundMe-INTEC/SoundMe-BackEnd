@@ -1,4 +1,5 @@
 from dictionary.repositories.word_repository import WordRepository
+from dictionary.models.word import Word
 
 class WordService:
     
@@ -7,7 +8,12 @@ class WordService:
     
     def create(self, data):
         
-        return self._word_repo.create(data)
+        word = Word(
+            word_name=data["word_name"],
+            grammatical_category=data["grammatical_category"],
+            description=data["description"]
+        )
+        return self._word_repo.create(word)
     
     def find_by_word_name(self, word_name):
         
