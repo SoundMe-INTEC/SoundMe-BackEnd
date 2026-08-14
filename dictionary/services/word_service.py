@@ -6,9 +6,10 @@ class WordService:
     def __init__(self):
         self._word_repo = WordRepository()
     
-    def create(self, data):
+    def create(self, data, user):
         
         word = Word(
+            created_by=user,
             word_name=data["word_name"],
             grammatical_category=data["grammatical_category"],
             description=data["description"]
@@ -32,9 +33,9 @@ class WordService:
         
         return self._word_repo.get_all_active()
         
-    def update(self, data):
+    def update(self, word_name, data):
         
-        word = self.find_by_word_name(data["word_name"])     
+        word = self.find_by_word_name(word_name)     
            
         new_name = data.get("word_name")
         

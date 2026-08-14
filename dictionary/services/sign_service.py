@@ -34,9 +34,9 @@ class SignService:
         
         return self._sign_repo.get_all_active()
     
-    def update(self, data):
+    def update(self, sign_name, data):
         
-        sign = self.find_by_sign_name(data["sign_name"])
+        sign = self.find_by_sign_name(sign_name)
         
         new_name = data.get("sign_name")
         
