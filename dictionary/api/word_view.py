@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from dictionary.services.word_service import WordService
 from dictionary.serializers.word_serializer import WordSerializer
 from rest_framework.permissions import IsAuthenticated
-
+from dictionary import models
 
 class WordView():
     
@@ -18,6 +18,7 @@ class WordView():
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
     
     @staticmethod
     @api_view(["GET"])

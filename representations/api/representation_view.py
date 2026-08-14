@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework import request
 from representations.serializers.Representation_serializer import RepresentationSerializer
 from representations.services.representation_service import RepresentationService
-
+from dictionary import models
+    
 class RepresentationView():
     
     @staticmethod
