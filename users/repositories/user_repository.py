@@ -1,5 +1,5 @@
 from users.models import User
-from django.db.models import QuerySet
+from django.db.models import QuerySet   
 
 
 class UserRepository:

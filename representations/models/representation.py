@@ -12,7 +12,7 @@ class Representation(models.Model):
     url = models.TextField(null=False)
     is_primary = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=1)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)   
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
