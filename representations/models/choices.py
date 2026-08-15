@@ -1,4 +1,6 @@
 from django.db import models
 
+
 class Extensions(models.TextChoices):
-    "WAV" = "WAV"
+    IMG = "img", "img"
+    PNG = "png", "png"

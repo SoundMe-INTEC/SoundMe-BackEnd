@@ -8,7 +8,7 @@ class Representation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     sign_id = models.ForeignKey('dictionary.Sign', on_delete=models.CASCADE, related_name="idsigns")
     create_by = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name="representationsby")
-    extension = models.CharField(max_length=20, choices=Extensions.choices, default=Extensions.choices.WAV, null=False)
+    extension = models.CharField(max_length=20, choices=Extensions.choices, default=Extensions.IMG, null=False)
     url = models.TextField(null=False)
     is_primary = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=1)
@@ -16,5 +16,5 @@ class Representation(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
-    class Meta: 
-        db_table = "sign_representation" 
+    class Meta:
+        db_table = "sign_representation"
