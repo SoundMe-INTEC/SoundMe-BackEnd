@@ -1,19 +1,8 @@
-from typing_extensions import Self
-
 from users.repositories.user_repository import UserRepository
 from users.models import User
 
 
 class UserService:
-
-#Se utiliza el patrón de diseño singleton para no crear múltiples instancias de una misma clase en caliente
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(UserService, cls).__new__(cls)
-            cls._instance._user_repo = UserRepository()
-        return cls._instance
 
     def __init__(self):
         self._user_repo = UserRepository()
