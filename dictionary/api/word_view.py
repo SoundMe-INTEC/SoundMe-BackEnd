@@ -1,16 +1,15 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 from dictionary.services.word_service import WordService
 from dictionary.serializers.word_serializer import WordSerializer
-from rest_framework.permissions import IsAuthenticated
-from dictionary import models
+
 
 class WordView():
     
     @staticmethod
     @api_view(["GET"])
-    def search_all():
+    def get_all(request):
         word_service = WordService()
         try:
             words = word_service.find_all_active()
@@ -18,60 +17,21 @@ class WordView():
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
-    
+
     @staticmethod
     @api_view(["GET"])
-    def search(request):
+    def get(request):
         word_service = WordService()
         word_name = request.query_params.get("word_name")
         if not word_name:
             return Response(
-                {"detail": "word_name query parameter is required "},
+                {"detail": "word_name query parameter is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         try:
             word = word_service.find_by_word_name(word_name)
             serializer = WordSerializer(word)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
         except ValueError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-        
-    @staticmethod
-    @api_view(["POST"])
-    @permission_classes([IsAuthenticated])
-    def create(request):
-        word_service = WordService()
-        serializer = WordSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        try:
-            word = word_service.create(
-                serializer.validated_data,
-                request.user
-            )
-            return Response(
-                {"word": str(word)}, status=status.HTTP_201_CREATED
-                )
-        except ValueError as e:
-            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-            
-            
-    @staticmethod
-    @api_view(["DELETE"])
-    @permission_classes([IsAuthenticated])
-    def soft_deelete(request):
-        word_service = WordService()
-        word_name = request.query_params.get("word_name")
-        try:
-            if not word_name:
-                return Response(    
-                    {"detail": "word_name query parameter is required"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            word = word_service.soft_delete(word_name)
-            return Response({"message": str(word)}, status=status.HTTP_202_ACCEPTED)
-                
-        except ValueError as e:
-            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)  
