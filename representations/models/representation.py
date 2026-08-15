@@ -1,13 +1,14 @@
+import uuid
+
 from django.db import models
-import uuid 
+
 from representations.models.choices import Extensions
 
-# Create your models here.
 
 class Representation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
-    sign_id = models.ForeignKey('dictionary.Sign', on_delete=models.CASCADE, related_name="idsigns")
-    create_by = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name="representationsby")
+    sign_id = models.ForeignKey('dictionary.Sign', on_delete=models.CASCADE, related_name='idsigns')
+    create_by = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='representationsby')
     extension = models.CharField(max_length=20, choices=Extensions.choices, default=Extensions.IMG, null=False)
     url = models.TextField(null=False)
     is_primary = models.BooleanField(default=True)
@@ -17,4 +18,4 @@ class Representation(models.Model):
     update_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "sign_representation"
+        db_table = 'sign_representation'
