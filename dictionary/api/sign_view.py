@@ -7,11 +7,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 
 
-class SignView():
-    permission_classes = [AllowAny]
-    
+class SignView():    
     @staticmethod
     @api_view(["GET"])
+    @permission_classes([AllowAny])
     def get_all(request):
         sign_service = SignService()
         try:
@@ -23,6 +22,7 @@ class SignView():
 
     @staticmethod
     @api_view(["GET"])
+    @permission_classes([AllowAny])
     def get(request):
         sign_service = SignService()
         sign_name = request.query_params.get("sign_name")
@@ -41,7 +41,7 @@ class SignView():
         
     @staticmethod
     @api_view(["POST"])
-    @permission_classes([IsAuthenticated])
+    @permission_classes(IsAuthenticated)
     def create(request):
         sign_service = SignService()
         serializer = SignSerializer(data=request.data)
