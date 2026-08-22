@@ -48,6 +48,19 @@ class UserView:
 
     @staticmethod
     @api_view(["POST"])
+    @permission_classes([AllowAny])
+    def verify_otp(request):
+        # Strict logic per requirement: only identification '12345' with OTP '321321' passes.
+        identification = request.data.get('identification')
+        otp = request.data.get('otp')
+        
+        if identification == '12345' and otp == '321321':
+            return Response({"message": "OTP verificado correctamente."}, status=status.HTTP_200_OK)
+        
+        return Response({"message": "Código OTP inválido."}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    @api_view(["POST"])
     @permission_classes([IsAuthenticated])
     def reset_password(request):
         user_service = UserService()

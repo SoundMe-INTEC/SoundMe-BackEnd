@@ -5,6 +5,7 @@ from .user_view import UserView
 urlpatterns = [
     path("signup", UserView.signup, name="user-signup"),
     path("login", UserView.login, name="user-login"),
+    path("verify-otp", UserView.verify_otp, name="user-verify-otp"),
     path("profile", UserView.profile, name="user-profile"),
     path("reset-password", UserView.reset_password, name="user-reset-password"),
     path("users", UserView.search_users, name="user-search"),
