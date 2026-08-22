@@ -1,16 +1,17 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
 from representations.serializers.Representation_serializer import RepresentationSerializer
 from representations.services.representation_service import RepresentationService
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
 class RepresentationView:
-    permission_classes = [AllowAny]
 
     @staticmethod
     @api_view(["GET"])
+    @permission_classes([AllowAny])
+
     def search_all(request):
         representation_service = RepresentationService()
         try:
@@ -22,6 +23,8 @@ class RepresentationView:
 
     @staticmethod
     @api_view(["GET"])
+    @permission_classes([AllowAny])
+
     def get(request):
         representation_service = RepresentationService()
         sign_id = request.query_params.get("sign_id")
@@ -37,6 +40,8 @@ class RepresentationView:
 
     @staticmethod
     @api_view(["POST"])
+    @permission_classes(IsAuthenticated) # type: ignore
+
     def create(request):
         representation_service = RepresentationService()
         serializer = RepresentationSerializer(data=request.data)

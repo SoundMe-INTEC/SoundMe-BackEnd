@@ -41,7 +41,7 @@ class SignView():
         
     @staticmethod
     @api_view(["POST"])
-    @permission_classes(IsAuthenticated)
+    @permission_classes(IsAuthenticated) # type: ignore
     def create(request):
         sign_service = SignService()
         serializer = SignSerializer(data=request.data)
