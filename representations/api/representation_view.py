@@ -3,9 +3,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from representations.serializers.Representation_serializer import RepresentationSerializer
 from representations.services.representation_service import RepresentationService
+from rest_framework.permissions import AllowAny
 
 
 class RepresentationView:
+    permission_classes = [AllowAny]
 
     @staticmethod
     @api_view(["GET"])

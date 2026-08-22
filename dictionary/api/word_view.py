@@ -3,10 +3,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from dictionary.services.word_service import WordService
 from dictionary.serializers.word_serializer import WordSerializer
+from rest_framework.permissions import AllowAny
 
 
 class WordView():
-    
+    permission_classes = [AllowAny]
+
     @staticmethod
     @api_view(["GET"])
     def get_all(request):

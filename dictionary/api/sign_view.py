@@ -4,9 +4,11 @@ from dictionary.serializers.sign_serializer import SignSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 
 class SignView():
+    permission_classes = [AllowAny]
     
     @staticmethod
     @api_view(["GET"])
