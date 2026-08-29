@@ -36,7 +36,7 @@ class UserView:
         serializer = user_serializer.LogInSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            user = user_service.login(serializer.validated_data)
+            user = user_service.check(serializer.validated_data)
             refresh = RefreshToken.for_user(user)
 
             return Response(

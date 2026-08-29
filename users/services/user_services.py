@@ -1,8 +1,10 @@
 import secrets
 from datetime import timedelta
+from email.mime.image import MIMEImage
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.utils import timezone
 
 from users.repositories.user_repository import UserRepository
@@ -33,14 +35,35 @@ class UserService:
         user.otp_code = f"{secrets.randbelow(1_000_000):06d}"
         user.otp_expires_at = timezone.now() + timedelta(minutes=10)
 
-        send_mail(
-            subject="Código de verificación de SoundMe",
-            message=f"Tu código de verificación es: {user.otp_code}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-        )
+        self._send_verification_email(user)
 
         return self._user_repo.create(user)
+
+    def _send_verification_email(self, user):
+        subject = "Tu código de verificación de SoundMe"
+        text_body = (
+            "Tu código de verificación de SoundMe es: "
+            f"{user.otp_code}. Vence en 10 minutos."
+        )
+        html_body = render_to_string(
+            "users/emails/otp_verification.html",
+            {"otp_code": user.otp_code},
+        )
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=text_body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[user.email],
+        )
+        email.attach_alternative(html_body, "text/html")
+
+        logo_path = settings.BASE_DIR / "users/static/users/images/soundme_logo.png"
+        with logo_path.open("rb") as logo_file:
+            logo = MIMEImage(logo_file.read())
+        logo.add_header("Content-ID", "<soundme-logo>")
+        logo.add_header("Content-Disposition", "inline", filename="soundme_logo.png")
+        email.attach(logo)
+        email.send(fail_silently=False)
 
     def verify_otp(self, data):
         user = self.find_by_identification(data["identification"])
@@ -48,9 +71,29 @@ class UserService:
         if user.is_active:
             raise ValueError("User is already verified")
 
+        self._activate_with_otp(user, data["otp"])
+        return user
+
+    def check(self, data):
+        user = self._user_repo.get_by_identification(data["identification"])
+
+        if user is None or not user.check_password(data["password"]):
+            raise ValueError("Invalid credentials")
+
+        if user.is_active:
+            return user
+
+        otp = data.get("otp")
+        if not otp:
+            raise ValueError("OTP verification required")
+
+        self._activate_with_otp(user, otp)
+        return user
+
+    def _activate_with_otp(self, user, otp):
         if (
             not user.otp_code
-            or user.otp_code != data["otp"]
+            or user.otp_code != otp
             or not user.otp_expires_at
             or timezone.now() >= user.otp_expires_at
         ):
@@ -60,19 +103,6 @@ class UserService:
         user.otp_code = None
         user.otp_expires_at = None
         self._user_repo.update(user)
-        return user
-
-    def login(self, data):
-
-        user = self._user_repo.get_by_identification(data["identification"])
-
-        if user is None or not user.check_password(data["password"]):
-            raise ValueError("Invalid credentials")
-
-        if not user.is_active:
-            raise ValueError("User account is disabled")
-
-        return user
 
     def reset_password(self, data):
 

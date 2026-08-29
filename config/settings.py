@@ -136,6 +136,8 @@ CORS_ALLOWED_ORIGINS = config(
 )
 CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', default=False, cast=bool)
 
+RESEND_API_KEY = config('RESEND_API_KEY', default='')
+
 EMAIL_BACKEND = config(
     'EMAIL_BACKEND',
     default='django.core.mail.backends.smtp.EmailBackend',
@@ -143,34 +145,34 @@ EMAIL_BACKEND = config(
 
 EMAIL_HOST = config(
     'EMAIL_HOST',
-    default='smtp.gmail.com'
+    default='smtp.resend.com' if RESEND_API_KEY else 'smtp.gmail.com'
 )
 
 EMAIL_PORT = config(
     'EMAIL_PORT',
-    default=587,
+    default=465 if RESEND_API_KEY else 587,
     cast=int
 )
 
 EMAIL_HOST_USER = config(
     'EMAIL_HOST_USER',
-    default=''
+    default='resend' if RESEND_API_KEY else ''
 )
 
 EMAIL_HOST_PASSWORD = config(
     'EMAIL_HOST_PASSWORD',
-    default=''
+    default=RESEND_API_KEY
 )
 
 EMAIL_USE_TLS = config(
     'EMAIL_USE_TLS',
-    default=True,
+    default=not bool(RESEND_API_KEY),
     cast=bool
 )
 
 EMAIL_USE_SSL = config(
     'EMAIL_USE_SSL',
-    default=False,
+    default=bool(RESEND_API_KEY),
     cast=bool
 )
 
@@ -182,7 +184,7 @@ EMAIL_TIMEOUT = config(
 
 DEFAULT_FROM_EMAIL = config(
     'DEFAULT_FROM_EMAIL',
-    default=EMAIL_HOST_USER
+    default='SoundMe <onboarding@resend.dev>' if RESEND_API_KEY else EMAIL_HOST_USER
 )
 
 AUTH_USER_MODEL = "users.User"

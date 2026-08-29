@@ -14,15 +14,17 @@ pip install -r requirements.txt
 
 # Crear el archivo `.env` a partir de `.env.example`
 
-# Configuracion SMTP
+# Configuracion de correo con Resend
 
-El registro envia el OTP usando SMTP. Copia `.env.example` como `.env` y completa
-`EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD` y `DEFAULT_FROM_EMAIL`. Con Gmail debes
-usar una contrasena de aplicacion y tener activada la verificacion en dos pasos.
+El registro envia el OTP por SMTP usando Resend. Copia `.env.example` como `.env`,
+crea una API key de envio en Resend y define `RESEND_API_KEY` y
+`DEFAULT_FROM_EMAIL`. Con solo `RESEND_API_KEY`, la configuracion usa
+automáticamente `smtp.resend.com`, puerto `465`, usuario `resend` y SSL.
 
-Para otro proveedor SMTP cambia `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USE_TLS` y
-`EMAIL_USE_SSL` segun los datos de tu proveedor. No subas el archivo `.env` al
-repositorio.
+Para pruebas usa `SoundMe <onboarding@resend.dev>`; Resend solo permitirá enviar
+al correo propietario de la cuenta. Para enviar a usuarios finales, verifica un
+dominio en Resend y usa un remitente de ese dominio. No subas el archivo `.env`
+ni las API keys al repositorio.
 
 python manage.py migrate
 
