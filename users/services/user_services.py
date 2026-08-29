@@ -1,4 +1,5 @@
 import secrets
+from smtplib import SMTPException
 from datetime import timedelta
 from email.mime.image import MIMEImage
 
@@ -9,6 +10,10 @@ from django.utils import timezone
 
 from users.repositories.user_repository import UserRepository
 from users.models import User
+
+
+class EmailDeliveryError(Exception):
+    pass
 
 
 class UserService:
@@ -58,7 +63,10 @@ class UserService:
         logo.add_header("Content-ID", "<soundme-logo>")
         logo.add_header("Content-Disposition", "inline", filename="soundme_logo.png")
         email.attach(logo)
-        email.send(fail_silently=False)
+        try:
+            email.send(fail_silently=False)
+        except (OSError, SMTPException) as error:
+            raise EmailDeliveryError("Unable to send OTP email") from error
 
     def verify_otp(self, data):
         user = self.find_by_identification(data["identification"])

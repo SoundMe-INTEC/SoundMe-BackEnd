@@ -5,7 +5,7 @@ from unittest.mock import patch
 from datetime import timedelta
 
 from users.models import User
-from users.services.user_services import UserService
+from users.services.user_services import EmailDeliveryError, UserService
 
 
 class UserServiceCheckTests(TestCase):
@@ -48,6 +48,18 @@ class UserServiceCheckTests(TestCase):
 		self.assertIsNotNone(user.otp_code)
 		self.assertIsNotNone(user.otp_expires_at)
 		send_email.assert_called_once_with(user)
+
+	@patch(
+		"users.services.user_services.EmailMultiAlternatives.send",
+		side_effect=TimeoutError,
+	)
+	def test_check_raises_delivery_error_when_smtp_times_out(self, send_email):
+		user = self.create_user(is_active=False)
+
+		with self.assertRaises(EmailDeliveryError):
+			self.service.check(
+				{"identification": user.identification, "password": "secure-password"}
+			)
 
 	def test_check_activates_pending_user_with_valid_otp(self):
 		user = self.create_user(
