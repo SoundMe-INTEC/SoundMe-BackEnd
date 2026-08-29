@@ -1,9 +1,11 @@
 from django.test import TestCase
 from django.utils import timezone
 from unittest.mock import patch
+from rest_framework.test import APIRequestFactory
 
 from datetime import timedelta
 
+from users.api.user_view import UserView
 from users.models import User
 from users.services.user_services import EmailDeliveryError, UserService
 
@@ -81,3 +83,16 @@ class UserServiceCheckTests(TestCase):
 		self.assertTrue(user.is_active)
 		self.assertIsNone(user.otp_code)
 		self.assertIsNone(user.otp_expires_at)
+
+	@patch.object(UserService, "check", side_effect=EmailDeliveryError)
+	def test_check_endpoint_returns_503_when_email_delivery_fails(self, check):
+		request = APIRequestFactory().post(
+			"/api/check",
+			{"identification": "001-0000000-1", "password": "secure-password"},
+			format="json",
+		)
+
+		response = UserView.check(request)
+
+		self.assertEqual(response.status_code, 503)
+		self.assertEqual(response.data["message"], "No se pudo enviar el código. Intenta de nuevo más tarde.")

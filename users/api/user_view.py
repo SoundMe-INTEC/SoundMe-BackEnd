@@ -52,6 +52,11 @@ class UserView:
             )
         except ValueError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except EmailDeliveryError:
+            return Response(
+                {"message": "No se pudo enviar el código. Intenta de nuevo más tarde."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
     @staticmethod
     @api_view(["POST"])
