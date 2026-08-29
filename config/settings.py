@@ -138,7 +138,7 @@ CORS_ALLOW_CREDENTIALS = config('CORS_ALLOW_CREDENTIALS', default=False, cast=bo
 
 EMAIL_BACKEND = config(
     'EMAIL_BACKEND',
-    default='django.core.mail.backends.console.EmailBackend',
+    default='django.core.mail.backends.smtp.EmailBackend',
 )
 
 EMAIL_HOST = config(
