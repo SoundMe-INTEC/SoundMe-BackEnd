@@ -31,12 +31,32 @@ class UserView:
     @staticmethod
     @api_view(["POST"])
     @permission_classes([AllowAny])
+    def check(request):
+        user_service = UserService()
+        serializer = user_serializer.CheckCredentialsSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = user_service.check(serializer.validated_data)
+            return Response(
+                {
+                    "user": str(user.identification),
+                    "requires_otp": not user.is_active,
+                    "message": "OTP sent to your email." if not user.is_active else "Credentials verified.",
+                },
+                status=status.HTTP_200_OK,
+            )
+        except ValueError as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    @api_view(["POST"])
+    @permission_classes([AllowAny])
     def login(request):
         user_service = UserService()
         serializer = user_serializer.LogInSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
-            user = user_service.check(serializer.validated_data)
+            user = user_service.login(serializer.validated_data)
             refresh = RefreshToken.for_user(user)
 
             return Response(

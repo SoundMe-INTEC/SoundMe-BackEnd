@@ -32,11 +32,6 @@ class UserService:
 
         user.set_password(data["password"])
         user.is_active = False
-        user.otp_code = f"{secrets.randbelow(1_000_000):06d}"
-        user.otp_expires_at = timezone.now() + timedelta(minutes=10)
-
-        self._send_verification_email(user)
-
         return self._user_repo.create(user)
 
     def _send_verification_email(self, user):
@@ -75,6 +70,20 @@ class UserService:
         return user
 
     def check(self, data):
+        user = self._user_repo.get_by_identification(data["identification"])
+
+        if user is None or not user.check_password(data["password"]):
+            raise ValueError("Invalid credentials")
+
+        if not user.is_active:
+            user.otp_code = f"{secrets.randbelow(1_000_000):06d}"
+            user.otp_expires_at = timezone.now() + timedelta(minutes=10)
+            self._user_repo.update(user)
+            self._send_verification_email(user)
+
+        return user
+
+    def login(self, data):
         user = self._user_repo.get_by_identification(data["identification"])
 
         if user is None or not user.check_password(data["password"]):

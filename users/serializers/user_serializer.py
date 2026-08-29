@@ -12,6 +12,10 @@ class LogInSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, min_length=8)
     otp = serializers.CharField(max_length=6, min_length=6, required=False)
 
+class CheckCredentialsSerializer(serializers.Serializer):
+    identification = serializers.CharField(max_length=20)
+    password = serializers.CharField(write_only=True, min_length=8)
+
 class VerifyOTPSerializer(serializers.Serializer):
     identification = serializers.CharField(max_length=20)
     otp = serializers.CharField(max_length=6, min_length=6)
