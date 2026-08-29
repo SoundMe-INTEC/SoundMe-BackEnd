@@ -1,3 +1,10 @@
+import secrets
+from datetime import timedelta
+
+from django.conf import settings
+from django.core.mail import send_mail
+from django.utils import timezone
+
 from users.repositories.user_repository import UserRepository
 from users.models import User
 
@@ -22,8 +29,38 @@ class UserService:
         )
 
         user.set_password(data["password"])
+        user.is_active = False
+        user.otp_code = f"{secrets.randbelow(1_000_000):06d}"
+        user.otp_expires_at = timezone.now() + timedelta(minutes=10)
+
+        send_mail(
+            subject="Código de verificación de SoundMe",
+            message=f"Tu código de verificación es: {user.otp_code}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+        )
 
         return self._user_repo.create(user)
+
+    def verify_otp(self, data):
+        user = self.find_by_identification(data["identification"])
+
+        if user.is_active:
+            raise ValueError("User is already verified")
+
+        if (
+            not user.otp_code
+            or user.otp_code != data["otp"]
+            or not user.otp_expires_at
+            or timezone.now() >= user.otp_expires_at
+        ):
+            raise ValueError("Invalid or expired OTP")
+
+        user.is_active = True
+        user.otp_code = None
+        user.otp_expires_at = None
+        self._user_repo.update(user)
+        return user
 
     def login(self, data):
 

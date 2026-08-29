@@ -19,7 +19,11 @@ class UserView:
         try:
             user = user_service.signup(serializer.validated_data)
             return Response(
-                {"user": str(user.identification)}, status=status.HTTP_201_CREATED
+                {
+                    "user": str(user.identification),
+                    "message": "User created. Check your email for the OTP.",
+                },
+                status=status.HTTP_201_CREATED,
             )
         except ValueError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -50,14 +54,21 @@ class UserView:
     @api_view(["POST"])
     @permission_classes([AllowAny])
     def verify_otp(request):
-        # Strict logic per requirement: only identification '12345' with OTP '321321' passes.
-        identification = request.data.get('identification')
-        otp = request.data.get('otp')
-        
-        if identification == '12345' and otp == '321321':
-            return Response({"message": "OTP verificado correctamente."}, status=status.HTTP_200_OK)
-        
-        return Response({"message": "Código OTP inválido."}, status=status.HTTP_400_BAD_REQUEST)
+        user_service = UserService()
+        serializer = user_serializer.VerifyOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            user = user_service.verify_otp(serializer.validated_data)
+            return Response(
+                {
+                    "user": str(user.identification),
+                    "message": "OTP verified successfully.",
+                },
+                status=status.HTTP_200_OK,
+            )
+        except ValueError as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @staticmethod
     @api_view(["POST"])

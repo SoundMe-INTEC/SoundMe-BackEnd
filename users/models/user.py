@@ -12,6 +12,8 @@ class User(AbstractUser):
     identification_type = models.CharField(max_length=20, choices=choices.IdentificationType.choices)
     role = models.CharField(max_length=20, choices=choices.Roles.choices, default=choices.Roles.ADMIN)
     phone = models.CharField(max_length=11, unique=True,blank=True, null=True, default=None)
+    otp_code = models.CharField(max_length=6, blank=True, null=True, editable=False)
+    otp_expires_at = models.DateTimeField(blank=True, null=True, editable=False)
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
