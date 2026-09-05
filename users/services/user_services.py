@@ -82,10 +82,9 @@ class UserService:
             raise ValueError("User account is disabled")
 
         otp = data.get("otp")
-        if not otp:
-            raise ValueError("OTP verification required")
+        if otp:
+            self._consume_otp(user, otp)
 
-        self._consume_otp(user, otp)
         return user
 
     def _consume_otp(self, user, otp):

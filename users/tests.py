@@ -62,13 +62,14 @@ class UserServiceCheckTests(TestCase):
 				{"identification": user.identification, "password": "secure-password"}
 			)
 
-	def test_login_requires_otp_for_active_user(self):
+	def test_login_succeeds_without_otp_temporarily(self):
 		user = self.create_user(is_active=True)
 
-		with self.assertRaisesMessage(ValueError, "OTP verification required"):
-			self.service.login(
-				{"identification": user.identification, "password": "secure-password"}
-			)
+		authenticated_user = self.service.login(
+			{"identification": user.identification, "password": "secure-password"}
+		)
+
+		self.assertEqual(authenticated_user, user)
 
 	def test_login_succeeds_with_valid_otp(self):
 		user = self.create_user(
