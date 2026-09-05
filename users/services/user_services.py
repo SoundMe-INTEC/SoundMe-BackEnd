@@ -32,8 +32,9 @@ class UserService:
             email=data["email"],
         )
 
+        # El usuario queda habilitado desde el registro; el OTP obligatorio en
+        # el primer login confirma la propiedad del correo.
         user.set_password(data["password"])
-        user.is_active = False
         return self._user_repo.create(user)
 
     def _send_verification_email(self, user):
@@ -50,11 +51,7 @@ class UserService:
 
     def verify_otp(self, data):
         user = self.find_by_identification(data["identification"])
-
-        if user.is_active:
-            raise ValueError("User is already verified")
-
-        self._activate_with_otp(user, data["otp"])
+        self._consume_otp(user, data["otp"])
         return user
 
     def check(self, data):
@@ -64,10 +61,14 @@ class UserService:
             raise ValueError("Invalid credentials")
 
         if not user.is_active:
-            user.otp_code = f"{secrets.randbelow(1_000_000):06d}"
-            user.otp_expires_at = timezone.now() + timedelta(minutes=10)
-            self._user_repo.update(user)
-            self._send_verification_email(user)
+            raise ValueError("User account is disabled")
+
+        # Se solicita OTP a todos los usuarios en cada inicio de sesión, no solo
+        # en la primera verificación de cuenta.
+        user.otp_code = f"{secrets.randbelow(1_000_000):06d}"
+        user.otp_expires_at = timezone.now() + timedelta(minutes=10)
+        self._user_repo.update(user)
+        self._send_verification_email(user)
 
         return user
 
@@ -77,17 +78,17 @@ class UserService:
         if user is None or not user.check_password(data["password"]):
             raise ValueError("Invalid credentials")
 
-        if user.is_active:
-            return user
+        if not user.is_active:
+            raise ValueError("User account is disabled")
 
         otp = data.get("otp")
         if not otp:
             raise ValueError("OTP verification required")
 
-        self._activate_with_otp(user, otp)
+        self._consume_otp(user, otp)
         return user
 
-    def _activate_with_otp(self, user, otp):
+    def _consume_otp(self, user, otp):
         if (
             not user.otp_code
             or user.otp_code != otp
@@ -96,7 +97,6 @@ class UserService:
         ):
             raise ValueError("Invalid or expired OTP")
 
-        user.is_active = True
         user.otp_code = None
         user.otp_expires_at = None
         self._user_repo.update(user)

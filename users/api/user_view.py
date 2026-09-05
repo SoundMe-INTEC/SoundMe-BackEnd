@@ -22,7 +22,7 @@ class UserView:
             return Response(
                 {
                     "user": str(user.identification),
-                    "message": "User created. Check your email for the OTP.",
+                    "message": "User created. Log in to receive your OTP code.",
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -46,8 +46,8 @@ class UserView:
             return Response(
                 {
                     "user": str(user.identification),
-                    "requires_otp": not user.is_active,
-                    "message": "OTP sent to your email." if not user.is_active else "Credentials verified.",
+                    "requires_otp": True,
+                    "message": "OTP sent to your email.",
                 },
                 status=status.HTTP_200_OK,
             )
