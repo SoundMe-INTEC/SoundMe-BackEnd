@@ -2,11 +2,17 @@ from representations.models.representation import Representation
 
 
 class RepresentationRepository:
+    def get_all(self):
+        return Representation.objects.all()
+
     def get_all_active(self):
         return Representation.objects.filter(is_active=True)
 
     def get_by_id(self, sign_id):
         return Representation.objects.filter(sign_id=sign_id).first()
+
+    def get_by_pk(self, representation_id):
+        return Representation.objects.filter(id=representation_id).first()
 
     def create(self, new_representation):
         new_representation.save()

@@ -35,3 +35,15 @@ class UserRepository:
         user.save()
 
         return True
+
+    def reactivate(self, identification):
+
+        user = User.objects.filter(identification=identification).first()
+
+        if user is None:
+            return False
+
+        user.is_active = True
+        user.save()
+
+        return True

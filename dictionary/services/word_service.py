@@ -1,5 +1,6 @@
 from dictionary.repositories.word_repository import WordRepository
 from dictionary.models.word import Word
+from dictionary.models.choices import Status
 
 class WordService:
     
@@ -21,6 +22,15 @@ class WordService:
         word = self._word_repo.get_by_name(word_name)
         
         if word is None: 
+            raise ValueError("Word doesn't exist")
+        
+        return word
+    
+    def find_by_id(self, word_id):
+        
+        word = self._word_repo.get_by_id(word_id)
+        
+        if word is None:
             raise ValueError("Word doesn't exist")
         
         return word
@@ -58,6 +68,30 @@ class WordService:
             if field in data: 
                 setattr(word, field, data[field])
         
+        return self._word_repo.update(word)
+    
+    def update_by_id(self, word_id, data):
+        
+        word = self.find_by_id(word_id)
+        
+        allowed_to_change = ("word_name", "description", "grammatical_category", "use_level")
+        
+        for field in allowed_to_change:
+            if field in data:
+                setattr(word, field, data[field])
+        
+        return self._word_repo.update(word)
+    
+    def deactivate(self, word_id):
+        
+        word = self.find_by_id(word_id)
+        word.is_active = Status.INACTIVE
+        return self._word_repo.update(word)
+    
+    def activate(self, word_id):
+        
+        word = self.find_by_id(word_id)
+        word.is_active = Status.ACTIVE
         return self._word_repo.update(word)
         
     def soft_delete(self, word_name):

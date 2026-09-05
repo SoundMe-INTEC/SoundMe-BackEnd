@@ -187,6 +187,13 @@ DEFAULT_FROM_EMAIL = config(
     default='SoundMe <onboarding@resend.dev>' if RESEND_API_KEY else EMAIL_HOST_USER
 )
 
+# Railway (plan Hobby) bloquea SMTP saliente, así que el envío de OTP se delega
+# a un microservicio aparte (SoundMe-MailRelay) desplegado en una máquina con
+# salida SMTP normal. El backend solo le hace un POST HTTPS autenticado.
+MAIL_RELAY_URL = config('MAIL_RELAY_URL', default='')
+MAIL_RELAY_API_KEY = config('MAIL_RELAY_API_KEY', default='')
+MAIL_RELAY_TIMEOUT = config('MAIL_RELAY_TIMEOUT', default=10, cast=int)
+
 AUTH_USER_MODEL = "users.User"
 
 AUTH_USER_MODEL = "users.User"

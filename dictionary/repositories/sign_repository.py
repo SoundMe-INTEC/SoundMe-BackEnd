@@ -1,4 +1,5 @@
 from dictionary.models import Sign
+from dictionary.models.choices import Status
 
 class SignRepository:
         
@@ -8,8 +9,11 @@ class SignRepository:
     def get_by_name(self, sign_name):
         return Sign.objects.filter(sign_name=sign_name).first()
     
+    def get_by_id(self, sign_id):
+        return Sign.objects.filter(id=sign_id).first()
+    
     def get_all_active(self):
-        return Sign.objects.filter(is_active=True)
+        return Sign.objects.filter(is_active=Status.ACTIVE)
     
     def create(self, new_sign):
         new_sign.save()
@@ -26,7 +30,7 @@ class SignRepository:
         if sign is None:
             return False
         
-        sign.is_active = False
+        sign.is_active = Status.INACTIVE
         sign.save()
         
         return True

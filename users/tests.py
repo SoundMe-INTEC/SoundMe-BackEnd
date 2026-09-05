@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.utils import timezone
 from unittest.mock import patch
+import requests
 from rest_framework.test import APIRequestFactory
 
 from datetime import timedelta
@@ -52,10 +53,10 @@ class UserServiceCheckTests(TestCase):
 		send_email.assert_called_once_with(user)
 
 	@patch(
-		"users.services.user_services.EmailMultiAlternatives.send",
-		side_effect=TimeoutError,
+		"users.services.user_services.requests.post",
+		side_effect=requests.exceptions.ConnectTimeout,
 	)
-	def test_check_raises_delivery_error_when_smtp_times_out(self, send_email):
+	def test_check_raises_delivery_error_when_smtp_times_out(self, mock_post):
 		user = self.create_user(is_active=False)
 
 		with self.assertRaises(EmailDeliveryError):

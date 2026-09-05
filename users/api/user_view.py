@@ -1,10 +1,11 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from users.serializers import user_serializer
 from users.services.user_services import EmailDeliveryError, UserService
+from config.pagination import AdminResultsPagination
 
 
 class UserView:
@@ -154,3 +155,91 @@ class UserView:
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    @api_view(["GET"])
+    @permission_classes([IsAdminUser])
+    def list_admin(request):
+        user_service = UserService()
+        users = user_service.find_all().order_by("identification")
+
+        search = request.query_params.get("search")
+        if search:
+            users = users.filter(identification__icontains=search)
+
+        paginator = AdminResultsPagination()
+        page = paginator.paginate_queryset(users, request)
+        serializer = user_serializer.UserResponseSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @staticmethod
+    @api_view(["POST"])
+    @permission_classes([IsAdminUser])
+    def admin_create_user(request):
+        user_service = UserService()
+        serializer = user_serializer.AdminCreateUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = user_service.admin_create(serializer.validated_data)
+            return Response(
+                user_serializer.UserResponseSerializer(user).data,
+                status=status.HTTP_201_CREATED,
+            )
+        except ValueError as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    @api_view(["PATCH"])
+    @permission_classes([IsAdminUser])
+    def update_user(request):
+        user_service = UserService()
+        serializer = user_serializer.UpdateUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = user_service.update(serializer.validated_data)
+            return Response(
+                user_serializer.UserResponseSerializer(user).data,
+                status=status.HTTP_200_OK,
+            )
+        except ValueError as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    @api_view(["POST"])
+    @permission_classes([IsAdminUser])
+    def deactivate_user(request):
+        user_service = UserService()
+        identification = request.data.get("identification")
+        if not identification:
+            return Response(
+                {"detail": "identification is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            user = user_service.deactivate(identification)
+            return Response(
+                user_serializer.UserResponseSerializer(user).data,
+                status=status.HTTP_200_OK,
+            )
+        except ValueError as e:
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+    @staticmethod
+    @api_view(["POST"])
+    @permission_classes([IsAdminUser])
+    def activate_user(request):
+        user_service = UserService()
+        identification = request.data.get("identification")
+        if not identification:
+            return Response(
+                {"detail": "identification is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            user = user_service.activate(identification)
+            return Response(
+                user_serializer.UserResponseSerializer(user).data,
+                status=status.HTTP_200_OK,
+            )
+        except ValueError as e:
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)

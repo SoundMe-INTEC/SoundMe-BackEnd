@@ -26,15 +26,26 @@ class UpdateUserSerializer(serializers.Serializer):
     identification_type = serializers.ChoiceField(choices=IdentificationType.choices, required=False)
     phone = serializers.CharField(max_length=11, required=False)
     role = serializers.ChoiceField(choices=Roles.choices, required=False)
+    is_staff = serializers.BooleanField(required=False)
+
+class AdminCreateUserSerializer(serializers.Serializer):
+    identification = serializers.CharField(max_length=20)
+    identification_type = serializers.ChoiceField(choices=IdentificationType.choices)
+    email = serializers.EmailField(allow_blank=False)
+    password = serializers.CharField(write_only=True, min_length=8)
+    phone = serializers.CharField(max_length=11, required=False, allow_null=True, allow_blank=True)
+    is_staff = serializers.BooleanField(required=False, default=False)
 
 class ResetPasswordSerializer(serializers.Serializer):
     identification = serializers.CharField(max_length=20)
     new_password = serializers.CharField(write_only=True, min_length=8)
 
 class UserResponseSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
     identification = serializers.CharField()
     identification_type = serializers.CharField()
     email = serializers.EmailField()
     phone = serializers.CharField(required=False, allow_null=True)
     role = serializers.CharField()
     is_active = serializers.BooleanField()
+    is_staff = serializers.BooleanField()

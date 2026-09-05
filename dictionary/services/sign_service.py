@@ -1,5 +1,6 @@
 from dictionary.repositories.sign_repository import SignRepository
 from dictionary.models.sign import Sign
+from dictionary.models.choices import Status
 
 class SignService:
     
@@ -20,6 +21,15 @@ class SignService:
     def find_by_sign_name(self, sign_name):
         
         sign = self._sign_repo.get_by_name(sign_name)
+        
+        if sign is None:
+            raise ValueError("Sign doesn't exist")
+        
+        return sign
+    
+    def find_by_id(self, sign_id):
+        
+        sign = self._sign_repo.get_by_id(sign_id)
         
         if sign is None:
             raise ValueError("Sign doesn't exist")
@@ -59,6 +69,30 @@ class SignService:
             if field in data: 
                 setattr(sign, field, data[field])
         
+        return self._sign_repo.update(sign)
+    
+    def update_by_id(self, sign_id, data):
+        
+        sign = self.find_by_id(sign_id)
+        
+        allowed_to_change = ("sign_name", "description", "sign_category")
+        
+        for field in allowed_to_change:
+            if field in data:
+                setattr(sign, field, data[field])
+        
+        return self._sign_repo.update(sign)
+    
+    def deactivate(self, sign_id):
+        
+        sign = self.find_by_id(sign_id)
+        sign.is_active = Status.INACTIVE
+        return self._sign_repo.update(sign)
+    
+    def activate(self, sign_id):
+        
+        sign = self.find_by_id(sign_id)
+        sign.is_active = Status.ACTIVE
         return self._sign_repo.update(sign)
         
     def soft_delete(self, sign_name):

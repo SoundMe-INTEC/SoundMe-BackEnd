@@ -14,17 +14,14 @@ pip install -r requirements.txt
 
 # Crear el archivo `.env` a partir de `.env.example`
 
-# Configuracion de correo con Resend
+# Configuracion del envio de OTP (SoundMe Mail Relay)
 
-El registro envia el OTP por SMTP usando Resend. Copia `.env.example` como `.env`,
-crea una API key de envio en Resend y define `RESEND_API_KEY` y
-`DEFAULT_FROM_EMAIL`. Con solo `RESEND_API_KEY`, la configuracion usa
-automáticamente `smtp.resend.com`, puerto `465`, usuario `resend` y SSL.
-
-Para pruebas usa `SoundMe <onboarding@resend.dev>`; Resend solo permitirá enviar
-al correo propietario de la cuenta. Para enviar a usuarios finales, verifica un
-dominio en Resend y usa un remitente de ese dominio. No subas el archivo `.env`
-ni las API keys al repositorio.
+Railway (plan Hobby) bloquea las conexiones SMTP salientes, por lo que el envio
+del OTP se delega al microservicio `SoundMe-MailRelay` (repo aparte), que corre
+en una maquina con salida SMTP normal. Copia `.env.example` como `.env` y
+define `MAIL_RELAY_URL` (URL HTTPS del relay) y `MAIL_RELAY_API_KEY` (debe
+coincidir con `RELAY_API_KEY` configurado en ese servicio). No subas el archivo
+`.env` ni las API keys al repositorio.
 
 python manage.py migrate
 

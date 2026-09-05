@@ -5,6 +5,8 @@ from dictionary.services.word_service import WordService
 from dictionary.serializers.word_serializer import WordSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
+from config.pagination import AdminResultsPagination
 
 
 class WordView():
@@ -59,3 +61,52 @@ class WordView():
             )
         except ValueError as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    @api_view(["GET"])
+    @permission_classes([IsAdminUser])
+    def list_admin(request):
+        word_service = WordService()
+        words = word_service.find_all().order_by("word_name")
+
+        search = request.query_params.get("search")
+        if search:
+            words = words.filter(word_name__icontains=search)
+
+        paginator = AdminResultsPagination()
+        page = paginator.paginate_queryset(words, request)
+        serializer = WordSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    @staticmethod
+    @api_view(["PATCH"])
+    @permission_classes([IsAdminUser])
+    def update(request, word_id):
+        word_service = WordService()
+        try:
+            word = word_service.update_by_id(word_id, request.data)
+            return Response(WordSerializer(word).data, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+    @staticmethod
+    @api_view(["POST"])
+    @permission_classes([IsAdminUser])
+    def deactivate(request, word_id):
+        word_service = WordService()
+        try:
+            word = word_service.deactivate(word_id)
+            return Response(WordSerializer(word).data, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+    @staticmethod
+    @api_view(["POST"])
+    @permission_classes([IsAdminUser])
+    def activate(request, word_id):
+        word_service = WordService()
+        try:
+            word = word_service.activate(word_id)
+            return Response(WordSerializer(word).data, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"message": str(e)}, status=status.HTTP_404_NOT_FOUND)

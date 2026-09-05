@@ -1,11 +1,8 @@
 import secrets
-from smtplib import SMTPException
 from datetime import timedelta
-from email.mime.image import MIMEImage
 
+import requests
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
 from django.utils import timezone
 
 from users.repositories.user_repository import UserRepository
@@ -40,32 +37,15 @@ class UserService:
         return self._user_repo.create(user)
 
     def _send_verification_email(self, user):
-        subject = "Tu código de verificación de SoundMe"
-        text_body = (
-            "Tu código de verificación de SoundMe es: "
-            f"{user.otp_code}. Vence en 10 minutos."
-        )
-        html_body = render_to_string(
-            "users/emails/otp_verification.html",
-            {"otp_code": user.otp_code},
-        )
-        email = EmailMultiAlternatives(
-            subject=subject,
-            body=text_body,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[user.email],
-        )
-        email.attach_alternative(html_body, "text/html")
-
-        logo_path = settings.BASE_DIR / "users/static/users/images/soundme_logo.png"
-        with logo_path.open("rb") as logo_file:
-            logo = MIMEImage(logo_file.read())
-        logo.add_header("Content-ID", "<soundme-logo>")
-        logo.add_header("Content-Disposition", "inline", filename="soundme_logo.png")
-        email.attach(logo)
         try:
-            email.send(fail_silently=False)
-        except (OSError, SMTPException) as error:
+            response = requests.post(
+                f"{settings.MAIL_RELAY_URL}/send-otp-email",
+                json={"to_email": user.email, "otp_code": user.otp_code},
+                headers={"X-API-Key": settings.MAIL_RELAY_API_KEY},
+                timeout=settings.MAIL_RELAY_TIMEOUT,
+            )
+            response.raise_for_status()
+        except requests.RequestException as error:
             raise EmailDeliveryError("Unable to send OTP email") from error
 
     def verify_otp(self, data):
@@ -176,13 +156,51 @@ class UserService:
                 raise ValueError("Identification is already in use by another user")
             user.identification = new_identification
 
-        allowed_to_change = ("identification_type", "phone", "role")
+        allowed_to_change = ("identification_type", "phone", "role", "is_staff")
 
         for field in allowed_to_change:
             if field in data:
                 setattr(user, field, data[field])
 
         return self._user_repo.update(user)
+
+    def admin_create(self, data):
+
+        if self._user_repo.get_by_identification(data["identification"]):
+            raise ValueError("User with this identification already exists")
+
+        if self._user_repo.get_by_email(data["email"]):
+            raise ValueError("User with this email already exists")
+
+        user = User(
+            identification=data["identification"],
+            identification_type=data["identification_type"],
+            email=data["email"],
+            phone=data.get("phone") or None,
+            is_staff=data.get("is_staff", False),
+            is_active=True,
+        )
+
+        user.set_password(data["password"])
+        return self._user_repo.create(user)
+
+    def deactivate(self, identification):
+
+        is_deactivated = self._user_repo.soft_delete(identification)
+
+        if not is_deactivated:
+            raise ValueError("User doesn't exist")
+
+        return self.find_by_identification(identification)
+
+    def activate(self, identification):
+
+        is_activated = self._user_repo.reactivate(identification)
+
+        if not is_activated:
+            raise ValueError("User doesn't exist")
+
+        return self.find_by_identification(identification)
 
     def soft_delete(self, identification):
 
