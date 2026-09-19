@@ -38,9 +38,12 @@ class UserService:
         return self._user_repo.create(user)
 
     def _send_verification_email(self, user):
+        if not settings.MAIL_RELAY_URL or not settings.MAIL_RELAY_API_KEY:
+            raise EmailDeliveryError("MAIL_RELAY_URL and MAIL_RELAY_API_KEY must be configured")
+
         try:
             response = requests.post(
-                f"{settings.MAIL_RELAY_URL}/send-otp-email",
+                f"{settings.MAIL_RELAY_URL.rstrip('/')}/send-otp-email",
                 json={"to_email": user.email, "otp_code": user.otp_code},
                 headers={"X-API-Key": settings.MAIL_RELAY_API_KEY},
                 timeout=settings.MAIL_RELAY_TIMEOUT,

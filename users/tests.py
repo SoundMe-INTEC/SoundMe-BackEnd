@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from unittest.mock import patch
 import requests
@@ -46,6 +46,18 @@ class UserServiceCheckTests(TestCase):
 		user = self.create_user(is_active=False)
 
 		with self.assertRaisesMessage(ValueError, "User account is disabled"):
+			self.service.check(
+				{"identification": user.identification, "password": "secure-password"}
+			)
+
+	@override_settings(MAIL_RELAY_URL="", MAIL_RELAY_API_KEY="")
+	def test_check_raises_delivery_error_when_mail_relay_is_not_configured(self):
+		user = self.create_user(is_active=True)
+
+		with self.assertRaisesMessage(
+			EmailDeliveryError,
+			"MAIL_RELAY_URL and MAIL_RELAY_API_KEY must be configured",
+		):
 			self.service.check(
 				{"identification": user.identification, "password": "secure-password"}
 			)
