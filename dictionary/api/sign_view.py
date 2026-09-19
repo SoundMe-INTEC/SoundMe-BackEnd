@@ -16,7 +16,18 @@ class SignView():
     def get_all(request):
         sign_service = SignService()
         try:
-            signs = sign_service.find_all_active()
+            search = request.query_params.get("search")
+            category = request.query_params.get("category")
+            limit = request.query_params.get("limit")
+
+            signs = sign_service.find_all_active().order_by("sign_name")
+            if search:
+                signs = signs.filter(sign_name__icontains=search.strip())
+            if category:
+                signs = signs.filter(sign_category=category.strip())
+            if limit and limit.isdigit():
+                signs = signs[:int(limit)]
+
             serializer = SignSerializer(signs, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ValueError as e:
